@@ -21,3 +21,5 @@
 - Model/skill compatibility rules live in src/lib/ai-models.ts and are enforced both in the UI and in server functions. Why: one source of truth for which model family a skill may run on.
 - Obsidian live sync talks to the user's local Obsidian (Local REST API plugin) from the browser only; its key stays in localStorage. Why: the server cannot reach the user's machine.
 - Ready-made creative skills use bundled original Markdown plus typed source/visual provenance, with per-tool editions copied into project_skills through the user's RLS client; why: shared templates stay available without mutating or seeding user projects.
+- Asset catalogs preserve source licenses and serve imported originals through asset pointers; why: previews and downloads must correspond to real redistributable content, distinct from AI instruction skills.
+- Creation uploads enter private quarantine and server inspection publishes only immutable snapshots; database triggers prevent self-verification and legacy/public storage reads remain restricted. Scripts and unsupported binary formats require independent review; why: static checks cannot guarantee absence of malware or backdoors.

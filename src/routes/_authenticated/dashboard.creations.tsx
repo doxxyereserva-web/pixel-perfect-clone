@@ -2,6 +2,8 @@ import { pageHead } from '@/lib/page-head';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
+import { useServerFn } from '@tanstack/react-start';
+import { analyzeCreation } from '@/lib/creation-security.functions';
 import { Download, ExternalLink, Lock, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -22,6 +24,8 @@ export const Route = createFileRoute('/_authenticated/dashboard/creations')({ he
 type Creation = Database['public']['Tables']['creations']['Row'];
 
 function Creations() {
+  const analyze = useServerFn(analyzeCreation);
+  const [scanning, setScanning] = useState<string | null>(null);
   const { user } = useAuth();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Creation | 'new' | null>(null);
@@ -48,7 +52,7 @@ function Creations() {
 
   const remove = useMutation({
     mutationFn: async (c: Creation) => {
-      if (c.file_path) await supabase.storage.from('creations').remove([c.file_path]);
+      if (c.file_path && c.file_bucket !== 'creation-checked') await supabase.storage.from(c.file_bucket).remove([c.file_path]);
       const { error } = await supabase.from('creations').delete().eq('id', c.id);
       if (error) throw error;
     },
@@ -68,11 +72,13 @@ function Creations() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2"><p className="truncate text-base">{c.title}</p><Pill>{kindLabel(c.kind)}</Pill><Pill>{c.visibility === 'public' ? <><Globe className="size-3" />Public</> : <><Lock className="size-3" />Private</>}</Pill></div>
           {c.description && <p className="mt-1.5 line-clamp-2 max-w-xl text-sm text-muted-foreground">{c.description}</p>}
+          {c.file_path && <p className="mt-2 text-xs text-muted-foreground"><span className={c.security_status === 'rejected' ? 'text-destructive' : 'text-mineral'}>{c.security_status === 'checked' ? 'Static checks passed' : c.security_status === 'pending' ? 'Awaiting analysis' : c.security_status === 'rejected' ? 'Blocked' : 'Review required'}</span> · {c.security_summary}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {c.external_url && <Button asChild variant="ghost" size="icon" aria-label="Open link"><a href={c.external_url} target="_blank" rel="noreferrer"><ExternalLink /></a></Button>}
-          {c.file_path && <Button variant="ghost" size="icon" aria-label="Download file" onClick={async () => { try { window.open(await creationDownloadUrl(c.file_path!), '_blank'); } catch (e) { toast.error(errorMessage(e)); } }}><Download /></Button>}
-          <Button variant="glass" size="sm" className="rounded-full" onClick={() => toggle.mutate(c)}>{c.visibility === 'public' ? 'Make private' : 'Make public'}</Button>
+          {c.file_path && <Button variant="ghost" size="icon" aria-label="Download file" onClick={async () => { try { window.open(await creationDownloadUrl(c.id), '_blank'); } catch (e) { toast.error(errorMessage(e)); } }}><Download /></Button>}
+          {c.file_path && c.security_status !== 'checked' && <Button size="sm" variant="glass" disabled={!!scanning} onClick={async () => { setScanning(c.id); try { const r = await analyze({ data: { creationId: c.id } }); toast.info(r.summary); } catch (e) { toast.error(errorMessage(e)); } finally { setScanning(null); qc.invalidateQueries({ queryKey: key }); } }}>{scanning === c.id ? 'Analyzing…' : 'Analyze'}</Button>}
+          <Button variant="glass" size="sm" className="rounded-full" disabled={c.visibility !== 'public' && (!!c.external_url || (!!c.file_path && c.security_status !== 'checked'))} onClick={() => toggle.mutate(c)}>{c.visibility === 'public' ? 'Make private' : 'Make public'}</Button>
           <Button variant="ghost" size="icon" aria-label="Edit" onClick={() => setEditing(c)}><Pencil /></Button>
           <Button variant="ghost" size="icon" aria-label="Delete" onClick={() => { if (confirm(`Delete “${c.title}”?`)) remove.mutate(c); }}><Trash2 /></Button>
         </div>
@@ -88,6 +94,7 @@ function Creations() {
 }
 
 function CreationForm({ userId, creation, onDone }: { userId: string; creation: Creation | null; onDone: () => void }) {
+  const analyze = useServerFn(analyzeCreation);
   const [form, setForm] = useState({
     title: creation?.title ?? '', description: creation?.description ?? '', kind: (creation?.kind ?? 'script') as CreationKind,
     external_url: creation?.external_url ?? '', visibility: creation?.visibility ?? 'private',
@@ -103,14 +110,17 @@ function CreationForm({ userId, creation, onDone }: { userId: string; creation: 
       let fileFields = {};
       if (file) {
         const up = await uploadCreationFile(userId, file);
-        if (creation?.file_path) await supabase.storage.from('creations').remove([creation.file_path]);
-        fileFields = { file_path: up.path, file_name: up.name };
+        fileFields = { file_path: up.path, file_name: up.name, file_bucket: up.bucket };
       }
-      const row = { ...form, title: form.title.trim(), description: form.description.trim() || null, external_url: url || null, ...fileFields };
-      const { error } = creation
-        ? await supabase.from('creations').update(row).eq('id', creation.id)
-        : await supabase.from('creations').insert({ ...row, owner_id: userId });
+      const row = { ...form, visibility: file || url || (creation?.file_path && creation.security_status !== 'checked') ? 'private' as const : form.visibility, title: form.title.trim(), description: form.description.trim() || null, external_url: url || null, ...fileFields };
+      const { data: saved, error } = creation
+        ? await supabase.from('creations').update(row).eq('id', creation.id).select('id').single()
+        : await supabase.from('creations').insert({ ...row, owner_id: userId }).select('id').single();
       if (error) throw error;
+      if (file && saved) {
+        try { const result = await analyze({ data: { creationId: saved.id } }); toast.info(result.summary); }
+        catch (e) { toast.error(`Upload saved privately. ${errorMessage(e)}`); }
+      }
       toast.success(creation ? 'Creation saved.' : 'Creation added.');
       onDone();
     } catch (err) { toast.error(errorMessage(err)); }
@@ -129,7 +139,8 @@ function CreationForm({ userId, creation, onDone }: { userId: string; creation: 
       <Input id="c-file" type="file" onChange={e => setFile(e.target.files?.[0] ?? null)} />
       {creation?.file_name && !file && <p className="text-xs text-muted-foreground">Current: {creation.file_name}</p>}</div>
     <div className="flex items-center justify-between rounded-lg border p-4"><div><Label htmlFor="c-vis">Public</Label><p className="mt-0.5 text-xs text-muted-foreground">Shown on your profile when creations are visible.</p></div>
-      <Switch id="c-vis" checked={form.visibility === 'public'} onCheckedChange={v => setForm(f => ({ ...f, visibility: v ? 'public' : 'private' }))} /></div>
+      <Switch id="c-vis" disabled={!!file || !!form.external_url || (!!creation?.file_path && creation.security_status !== 'checked')} checked={form.visibility === 'public'} onCheckedChange={v => setForm(f => ({ ...f, visibility: v ? 'public' : 'private' }))} /></div>
+    <p className="text-xs leading-relaxed text-muted-foreground">Uploads start private. Mesh-only OBJ can pass structural checks. Scripts, GLB, Roblox binary models and archives require review; suspicious files cannot be published. Automated inspection is not a malware-free guarantee.</p>
     <Button disabled={busy} className="mt-1 rounded-full">{busy ? 'Saving…' : creation ? 'Save' : 'Add creation'}</Button>
   </form>;
 }

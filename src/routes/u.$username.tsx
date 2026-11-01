@@ -56,8 +56,8 @@ function PublicProfile() {
     },
   });
 
-  async function download(path: string) {
-    try { window.open(await creationDownloadUrl(path), '_blank', 'noopener'); }
+  async function download(creationId: string) {
+    try { window.open(await creationDownloadUrl(creationId), '_blank', 'noopener'); }
     catch (e) { toast.error(errorMessage(e)); }
   }
 
@@ -100,9 +100,10 @@ function PublicProfile() {
             <div className="flex items-center gap-2"><Pill>{kindLabel(c.kind)}</Pill>{c.visibility === 'private' && <Pill><Lock className="size-3" />Private</Pill>}</div>
             <h3 className="mt-3 text-lg">{c.title}</h3>
             {c.description && <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{c.description}</p>}
+            {c.file_path && <p className="mt-3 text-xs text-muted-foreground">{c.security_status === 'checked' ? 'Mesh structural checks passed · not a security guarantee' : 'Private upload · inspection required'}</p>}
             <div className="mt-auto flex gap-2 pt-4">
               {c.external_url && <Button asChild size="sm" variant="glass" className="rounded-full"><a href={c.external_url} target="_blank" rel="noreferrer"><ExternalLink />Open</a></Button>}
-              {c.file_path && <Button size="sm" variant="glass" className="rounded-full" onClick={() => download(c.file_path!)}><Download />{c.file_name ?? 'Download'}</Button>}
+              {c.file_path && (c.security_status === 'checked' || isOwner) && <Button size="sm" variant="glass" className="rounded-full" onClick={() => download(c.id)}><Download />{c.file_name ?? 'Download'}</Button>}
             </div>
           </article>)}
         </div>}

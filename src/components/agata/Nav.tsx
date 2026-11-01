@@ -19,7 +19,7 @@ export function LanguageSelect({ className = '' }: { className?: string }) {
 export function Nav() {
   const [open, setOpen] = useState(false); const { theme, toggle } = useTheme(); const agata = useAgata(); const { t } = useI18n(); const { user } = useAuth();
   const accessLabel = user ? t('enter') : t('access');
-  const links = [{ to: '/projects' as const, label: t('projects') }, { to: '/workspaces' as const, label: t('workspaces') }, { to: '/skills' as const, label: 'Skills' }];
+  const links = [{ to: '/projects' as const, label: t('projects') }, { to: '/workspaces' as const, label: t('workspaces') }, { to: '/library' as const, label: 'Library' }, { to: '/skills' as const, label: 'Skills' }];
   return <><header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-5"><nav className="liquid mx-auto flex h-16 max-w-[1240px] items-center justify-between rounded-full px-4 sm:px-6">
     <Link to="/" aria-label="Ágata home" onClick={() => setOpen(false)}><Wordmark /></Link>
     <div className="hidden items-center gap-1 md:flex">{links.map(l => <Button asChild variant="ghost" key={l.to} className="rounded-full text-xs text-foreground/70 hover:text-foreground"><Link to={l.to} activeProps={{ className: 'bg-accent text-foreground' }}>{l.label}</Link></Button>)}</div>
