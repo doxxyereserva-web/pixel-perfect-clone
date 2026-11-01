@@ -15,6 +15,13 @@
       "when": 1793559800550,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793565506179,
+      "tag": "0002_agata_schema_v2",
+      "breakpoints": true
     }
   ]
 }
