@@ -65,7 +65,7 @@ function AuthPage() {
       } else if (mode === 'signup') {
         const username = form.username.trim().toLowerCase();
         if (!/^[a-z0-9_]{3,24}$/.test(username)) throw new Error('Usernames use 3–24 letters, numbers or underscores.');
-        const { error } = await supabase.auth.signUp({ email: form.email, password: form.password, options: { emailRedirectTo: `${window.location.origin}/auth`, data: { username } } });
+        const { error } = await supabase.auth.signUp({ email: form.email, password: form.password, options: { emailRedirectTo: new URL(`/auth?redirect=${encodeURIComponent(safeRedirect(sessionStorage.getItem(REDIRECT_KEY) ?? search.redirect))}`, window.location.origin).href, data: { username } } });
         if (error) throw error;
         setSent('Check your inbox to confirm your email, then sign in.');
       } else {

@@ -1,7 +1,15 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
-import { ArrowLeft, BookOpen, Cpu, Download, KeyRound, Plug, Target, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Cpu, Download, KeyRound, Plug, Sparkles, Target, Trash2, X } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { NotesTab } from '@/components/agata/project/NotesTab';
+import { SkillsTab } from '@/components/agata/project/SkillsTab';
+import { ConnectionsTab } from '@/components/agata/project/ConnectionsTab';
+import { AssistantTab } from '@/components/agata/project/AssistantTab';
+import { generateAsset } from '@/lib/tools.functions';
+import { DEFAULT_BUILTIN } from '@/lib/ai-models';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +32,8 @@ function ProjectPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const workspaces = useEditableWorkspaces(user?.id);
+  const generate = useServerFn(generateAsset);
+  const [drafting, setDrafting] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['project', id],
@@ -65,10 +75,10 @@ function ProjectPage() {
   const ro = !canEdit;
   const currentWs = p.workspace_id && !workspaces.some(w => w.id === p.workspace_id) ? [{ id: p.workspace_id, name: p.workspaces?.name ?? 'Workspace' }] : [];
 
-  return <form onSubmit={(e: FormEvent) => { e.preventDefault(); save.mutate(form); }}>
+  return <div>
     <Link to="/dashboard/projects" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft className="size-3.5" />Projects</Link>
     <div className="mt-4 flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-end">
-      <Input aria-label="Project name" disabled={ro} required maxLength={80} value={form.name} onChange={e => set('name', e.target.value)}
+      <Input form="project-form" aria-label="Project name" disabled={ro} required maxLength={80} value={form.name} onChange={e => set('name', e.target.value)}
         className="h-auto border-0 bg-transparent px-0 text-2xl sm:text-3xl font-normal tracking-tight shadow-none focus-visible:ring-0 disabled:opacity-100 sm:text-5xl md:text-5xl" />
       <div className="flex shrink-0 items-center gap-2">
         <Select disabled={ro} value={form.workspace} onValueChange={v => set('workspace', v)}><SelectTrigger className="h-9 w-40 rounded-full text-xs"><SelectValue /></SelectTrigger>
@@ -77,11 +87,30 @@ function ProjectPage() {
       </div>
     </div>
 
+    <Tabs defaultValue="overview" className="mt-6">
+      <TabsList className="h-auto flex-wrap justify-start rounded-full">
+        <TabsTrigger value="overview" className="rounded-full">Overview</TabsTrigger>
+        <TabsTrigger value="notes" className="rounded-full">Vault</TabsTrigger>
+        <TabsTrigger value="skills" className="rounded-full">Skills</TabsTrigger>
+        {canEdit && <TabsTrigger value="connections" className="rounded-full">Connections</TabsTrigger>}
+        {canEdit && <TabsTrigger value="assistant" className="rounded-full">Assistant</TabsTrigger>}
+      </TabsList>
+      <TabsContent value="notes"><NotesTab projectId={id} projectName={form.name} purpose={form.purpose} guide={form.guide} canEdit={canEdit} /></TabsContent>
+      <TabsContent value="skills"><SkillsTab projectId={id} canEdit={canEdit} /></TabsContent>
+      {canEdit && <TabsContent value="connections"><ConnectionsTab projectId={id} canEdit={canEdit} /></TabsContent>}
+      {canEdit && <TabsContent value="assistant"><AssistantTab projectId={id} /></TabsContent>}
+      <TabsContent value="overview"><form id="project-form" onSubmit={(e: FormEvent) => { e.preventDefault(); save.mutate(form); }}>
     <div className="divide-y">
       <Module icon={<Target />} title="Purpose" text="Why this project exists and who it's for.">
         <Textarea disabled={ro} rows={3} maxLength={600} value={form.purpose} onChange={e => set('purpose', e.target.value)} />
       </Module>
       <Module icon={<BookOpen />} title="Guide" text="Setup steps, conventions and how to use it. Plain text or Markdown.">
+        {canEdit && <Button type="button" size="sm" variant="glass" className="mb-2 w-fit rounded-full" disabled={drafting} onClick={async () => {
+          setDrafting(true);
+          try { const r = await generate({ data: { projectId: id, choice: { source: 'builtin', model: DEFAULT_BUILTIN }, kind: 'guide' } }); set('guide', r.text.slice(0, 20000)); toast.success('Draft ready — review it and press Save.'); }
+          catch (e) { toast.error(errorMessage(e)); }
+          setDrafting(false);
+        }}><Sparkles /> {drafting ? 'Writing…' : 'Draft guide with AI'}</Button>}
         <Textarea disabled={ro} rows={10} maxLength={20000} value={form.guide} onChange={e => set('guide', e.target.value)} className="font-mono text-xs leading-relaxed" />
       </Module>
       <Module icon={<Plug />} title="MCP connection" text="The MCP server address assistants use to work with this project.">
@@ -111,7 +140,9 @@ function ProjectPage() {
       </div>
     </div>}
     {!canEdit && <p className="mt-8 text-xs text-muted-foreground">View only — the project owner or a workspace admin can edit.</p>}
-  </form>;
+      </form></TabsContent>
+    </Tabs>
+  </div>;
 }
 
 function Module({ icon, title, text, children }: { icon: ReactNode; title: string; text: string; children: ReactNode }) {

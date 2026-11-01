@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
-import { Boxes, FolderKanban, LayoutGrid, LogOut, UserRound, Users } from 'lucide-react';
+import { Boxes, FolderKanban, LayoutGrid, LogOut, Plug, UserRound, Users } from 'lucide-react';
 import { Avatar } from '@/components/agata/account';
 import { useMyProfile, useSignOut } from '@/lib/auth';
 
@@ -22,6 +22,7 @@ const items = [
   { to: '/dashboard/creations' as const, label: 'Creations', icon: Boxes },
   { to: '/dashboard/workspaces' as const, label: 'Workspaces', icon: Users },
   { to: '/dashboard/projects' as const, label: 'Projects', icon: FolderKanban },
+  { to: '/dashboard/connections' as const, label: 'Connections', icon: Plug },
 ];
 
 function DashboardLayout() {

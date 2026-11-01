@@ -15,3 +15,8 @@
 - Use semantic mineral and hero-surface tokens in the global stylesheet for independently designed light and dark themes.
 - Glass effects are implemented in CSS (the `liquid`/`liquid-hover` utilities in src/styles.css), not via expo-glass-effect, which renders a native iOS view and cannot run in this web app.
 - Site-wide translation: src/lib/autoTranslate.ts translates rendered text/attributes via the translateBatch server fn (AI + shared ui_translations cache, plus localStorage); keyed strings in i18n.tsx stay for instant hero copy. Mark user content or brand text with translate="no". Why: hand-maintaining every string in 39 languages doesn't scale.
+- Third-party secrets (own AI keys, external MCP tokens) are stored only AES-GCM encrypted via src/lib/crypto.server.ts (AGATA_ENCRYPTION_KEY); never store or return them in plain text. Why: rows are readable by their owner through the Data API.
+- Ágata's own MCP server lives in src/lib/mcp (OAuth via managed auth, queries run as the caller under RLS); generated routes (src/routes/mcp.ts, [.well-known]) are never hand-edited. Why: the Vite plugin regenerates them.
+- The public REST API (/api/public/v1, personal agt_ keys stored as SHA-256 hashes) uses the admin client only after verifying the key and must mirror project RLS rules in src/lib/public-api.server.ts. Why: there is no user JWT on that path.
+- Model/skill compatibility rules live in src/lib/ai-models.ts and are enforced both in the UI and in server functions. Why: one source of truth for which model family a skill may run on.
+- Obsidian live sync talks to the user's local Obsidian (Local REST API plugin) from the browser only; its key stays in localStorage. Why: the server cannot reach the user's machine.

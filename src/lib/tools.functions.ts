@@ -44,14 +44,15 @@ export const saveConnection = createServerFn({ method: 'POST' })
   }).parse(i))
   .handler(async ({ data, context }) => {
     const { encryptSecret, hint } = await import('./crypto.server');
-    const row: Record<string, unknown> = { project_id: data.projectId, name: data.name, url: data.url, auth_header: data.authHeader };
+    const row: { project_id: string; name: string; url: string; auth_header: string | null; secret_encrypted?: string | null; secret_hint?: string | null } =
+      { project_id: data.projectId, name: data.name, url: data.url, auth_header: data.authHeader };
     if (data.secret !== undefined) {
       row.secret_encrypted = data.secret ? await encryptSecret(data.secret) : null;
       row.secret_hint = data.secret ? hint(data.secret) : null;
     }
     const q = data.id
       ? context.supabase.from('project_connections').update(row).eq('id', data.id).eq('project_id', data.projectId)
-      : context.supabase.from('project_connections').insert(row as { project_id: string; name: string; url: string });
+      : context.supabase.from('project_connections').insert(row);
     const { error } = await q;
     if (error) throw new Error(error.message);
     return { ok: true };
