@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardConnectionsRouteImport } from './routes/_authenticated/dashboard.connections'
 import { Route as AuthenticatedDashboardCreationsRouteImport } from './routes/_authenticated/dashboard.creations'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 import { Route as AuthenticatedDashboardProjectsIndexRouteImport } from './routes/_authenticated/dashboard.projects.index'
@@ -102,6 +103,12 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardConnectionsRoute =
+  AuthenticatedDashboardConnectionsRouteImport.update({
+    id: '/connections',
+    path: '/connections',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardCreationsRoute =
   AuthenticatedDashboardCreationsRouteImport.update({
     id: '/creations',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/u/$username': typeof UUsernameRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/dashboard/connections': typeof AuthenticatedDashboardConnectionsRoute
   '/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/u/$username': typeof UUsernameRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/dashboard/connections': typeof AuthenticatedDashboardConnectionsRoute
   '/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/u/$username': typeof UUsernameRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/_authenticated/dashboard/connections': typeof AuthenticatedDashboardConnectionsRoute
   '/_authenticated/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/u/$username'
     | '/.lovable/oauth/consent'
+    | '/dashboard/connections'
     | '/dashboard/creations'
     | '/dashboard/profile'
     | '/dashboard/'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/u/$username'
     | '/.lovable/oauth/consent'
+    | '/dashboard/connections'
     | '/dashboard/creations'
     | '/dashboard/profile'
     | '/dashboard'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/u/$username'
     | '/.lovable/oauth/consent'
+    | '/_authenticated/dashboard/connections'
     | '/_authenticated/dashboard/creations'
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/'
@@ -396,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/connections': {
+      id: '/_authenticated/dashboard/connections'
+      path: '/connections'
+      fullPath: '/dashboard/connections'
+      preLoaderRoute: typeof AuthenticatedDashboardConnectionsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/creations': {
       id: '/_authenticated/dashboard/creations'
       path: '/creations'
@@ -449,6 +469,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardConnectionsRoute: typeof AuthenticatedDashboardConnectionsRoute
   AuthenticatedDashboardCreationsRoute: typeof AuthenticatedDashboardCreationsRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -460,6 +481,8 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardConnectionsRoute:
+      AuthenticatedDashboardConnectionsRoute,
     AuthenticatedDashboardCreationsRoute: AuthenticatedDashboardCreationsRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
