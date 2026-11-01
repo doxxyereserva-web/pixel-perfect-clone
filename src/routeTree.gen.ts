@@ -21,6 +21,7 @@ import { Route as WorkspacesRouteImport } from './routes/workspaces'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardCreationsRouteImport } from './routes/_authenticated/dashboard.creations'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
@@ -28,6 +29,7 @@ import { Route as AuthenticatedDashboardProjectsIndexRouteImport } from './route
 import { Route as AuthenticatedDashboardProjectsIdRouteImport } from './routes/_authenticated/dashboard.projects.$id'
 import { Route as AuthenticatedDashboardWorkspacesIndexRouteImport } from './routes/_authenticated/dashboard.workspaces.index'
 import { Route as AuthenticatedDashboardWorkspacesIdRouteImport } from './routes/_authenticated/dashboard.workspaces.$id'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api.public.v1.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -89,6 +91,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
@@ -131,6 +138,11 @@ const AuthenticatedDashboardWorkspacesIdRoute =
     path: '/workspaces/$id',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,11 +156,13 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/u/$username': typeof UUsernameRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/projects/$id': typeof AuthenticatedDashboardProjectsIdRoute
   '/dashboard/workspaces/$id': typeof AuthenticatedDashboardWorkspacesIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/dashboard/projects/': typeof AuthenticatedDashboardProjectsIndexRoute
   '/dashboard/workspaces/': typeof AuthenticatedDashboardWorkspacesIndexRoute
 }
@@ -163,11 +177,13 @@ export interface FileRoutesByTo {
   '/workspaces': typeof WorkspacesRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/u/$username': typeof UUsernameRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/projects/$id': typeof AuthenticatedDashboardProjectsIdRoute
   '/dashboard/workspaces/$id': typeof AuthenticatedDashboardWorkspacesIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/dashboard/projects': typeof AuthenticatedDashboardProjectsIndexRoute
   '/dashboard/workspaces': typeof AuthenticatedDashboardWorkspacesIndexRoute
 }
@@ -185,11 +201,13 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/u/$username': typeof UUsernameRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/dashboard/creations': typeof AuthenticatedDashboardCreationsRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/projects/$id': typeof AuthenticatedDashboardProjectsIdRoute
   '/_authenticated/dashboard/workspaces/$id': typeof AuthenticatedDashboardWorkspacesIdRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/_authenticated/dashboard/projects/': typeof AuthenticatedDashboardProjectsIndexRoute
   '/_authenticated/dashboard/workspaces/': typeof AuthenticatedDashboardWorkspacesIndexRoute
 }
@@ -207,11 +225,13 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/dashboard'
     | '/u/$username'
+    | '/.lovable/oauth/consent'
     | '/dashboard/creations'
     | '/dashboard/profile'
     | '/dashboard/'
     | '/dashboard/projects/$id'
     | '/dashboard/workspaces/$id'
+    | '/api/public/v1/$'
     | '/dashboard/projects/'
     | '/dashboard/workspaces/'
   fileRoutesByTo: FileRoutesByTo
@@ -226,11 +246,13 @@ export interface FileRouteTypes {
     | '/workspaces'
     | '/.well-known/oauth-protected-resource'
     | '/u/$username'
+    | '/.lovable/oauth/consent'
     | '/dashboard/creations'
     | '/dashboard/profile'
     | '/dashboard'
     | '/dashboard/projects/$id'
     | '/dashboard/workspaces/$id'
+    | '/api/public/v1/$'
     | '/dashboard/projects'
     | '/dashboard/workspaces'
   id:
@@ -247,11 +269,13 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/dashboard'
     | '/u/$username'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/dashboard/creations'
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/projects/$id'
     | '/_authenticated/dashboard/workspaces/$id'
+    | '/api/public/v1/$'
     | '/_authenticated/dashboard/projects/'
     | '/_authenticated/dashboard/workspaces/'
   fileRoutesById: FileRoutesById
@@ -268,6 +292,8 @@ export interface RootRouteChildren {
   WorkspacesRoute: typeof WorkspacesRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   UUsernameRoute: typeof UUsernameRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -356,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/'
@@ -404,6 +437,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/workspaces/$id'
       preLoaderRoute: typeof AuthenticatedDashboardWorkspacesIdRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -462,6 +502,8 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   UUsernameRoute: UUsernameRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

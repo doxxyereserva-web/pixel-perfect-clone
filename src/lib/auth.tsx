@@ -57,7 +57,15 @@ export function useSignOut() {
   };
 }
 
-/** Only allow same-origin relative paths as post-login destinations. */
+/** Only allow canonical same-origin paths (query and hash kept) as post-login destinations. */
 export function safeRedirect(value: unknown): string {
-  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(value)) return '/dashboard';
+  const origin = 'https://app.invalid';
+  try {
+    const target = new URL(value, origin);
+    if (target.origin !== origin || target.pathname.startsWith('//')) return '/dashboard';
+    return target.pathname + target.search + target.hash;
+  } catch {
+    return '/dashboard';
+  }
 }
