@@ -78,7 +78,7 @@ function ProjectPage() {
   return <div>
     <Link to="/dashboard/projects" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft className="size-3.5" />Projects</Link>
     <div className="mt-4 flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-end">
-      <Input aria-label="Project name" disabled={ro} required maxLength={80} value={form.name} onChange={e => set('name', e.target.value)}
+      <Input form="project-form" aria-label="Project name" disabled={ro} required maxLength={80} value={form.name} onChange={e => set('name', e.target.value)}
         className="h-auto border-0 bg-transparent px-0 text-2xl sm:text-3xl font-normal tracking-tight shadow-none focus-visible:ring-0 disabled:opacity-100 sm:text-5xl md:text-5xl" />
       <div className="flex shrink-0 items-center gap-2">
         <Select disabled={ro} value={form.workspace} onValueChange={v => set('workspace', v)}><SelectTrigger className="h-9 w-40 rounded-full text-xs"><SelectValue /></SelectTrigger>
