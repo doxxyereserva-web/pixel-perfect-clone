@@ -16,6 +16,7 @@ import { skillFiles, skillInstallDir, skillSlug } from '@/lib/skills';
 import { generateAsset } from '@/lib/tools.functions';
 import { download, makeZip } from '@/lib/zip';
 import { ModelPicker } from './ModelPicker';
+import { SkillLibrary } from './SkillLibrary';
 
 type Skill = { id: string; name: string; description: string; target: SkillTarget; content: string };
 
@@ -58,6 +59,7 @@ export function SkillsTab({ projectId, canEdit }: { projectId: string; canEdit: 
         </div>
       </li>)}
     </ul>
+    <section className="mt-8 border-t pt-8"><h2 className="mb-5 text-2xl font-normal">Ready-made skills</h2><SkillLibrary projectId={projectId} canEdit={canEdit} /></section>
     <Dialog open={!!editing} onOpenChange={o => !o && setEditing(null)}>
       <DialogContent className="max-h-[90vh] overflow-y-auto rounded-lg sm:max-w-2xl">{editing && <SkillForm projectId={projectId} initial={editing} onDone={() => setEditing(null)} />}</DialogContent>
     </Dialog>
@@ -103,7 +105,8 @@ function SkillForm({ projectId, initial, onDone }: { projectId: string; initial:
     onDone();
   }
 
-  const t = skillTargets.find(s => s.id === f.target)!;
+  const t = skillTargets.find(s => s.id === f.target);
+  if (!t) return null;
   return <div className="grid gap-4">
     <DialogTitle className="text-2xl font-normal">{initial.id ? 'Edit skill' : 'New skill'}</DialogTitle>
     <div className="grid gap-4 sm:grid-cols-2">

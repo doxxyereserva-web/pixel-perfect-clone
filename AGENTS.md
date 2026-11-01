@@ -20,3 +20,4 @@
 - The public REST API (/api/public/v1, personal agt_ keys stored as SHA-256 hashes) uses the admin client only after verifying the key and must mirror project RLS rules in src/lib/public-api.server.ts. Why: there is no user JWT on that path.
 - Model/skill compatibility rules live in src/lib/ai-models.ts and are enforced both in the UI and in server functions. Why: one source of truth for which model family a skill may run on.
 - Obsidian live sync talks to the user's local Obsidian (Local REST API plugin) from the browser only; its key stays in localStorage. Why: the server cannot reach the user's machine.
+- Ready-made creative skills use bundled original Markdown plus typed source/visual provenance, with per-tool editions copied into project_skills through the user's RLS client; why: shared templates stay available without mutating or seeding user projects.
