@@ -18,4 +18,8 @@
 - [x] Skills: per target tool (Claude Code / Codex / Gemini CLI), downloadable; only usable with the matching model family.
 # Later
 - [ ] Let the project assistant call tools from connected external MCPs.
-- [ ] Public skills library page.
+# Ready-made skills
+- [ ] Research authoritative VFX, 3D, materials, animation and export references.
+- [ ] Add original ready-to-use skills with real visual references, previews and per-tool downloads.
+- [ ] Add selected library skills to projects and verify they read back in the assistant.
+- [ ] Test packaging, compatibility and the library flow.
