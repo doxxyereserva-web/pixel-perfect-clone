@@ -70,16 +70,64 @@ export type Database = {
         }
         Relationships: []
       }
+      creation_scans: {
+        Row: {
+          created_at: string
+          creation_id: string
+          findings: Json
+          id: string
+          owner_id: string
+          scanner_version: string
+          sha256: string
+          status: string
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          creation_id: string
+          findings?: Json
+          id?: string
+          owner_id: string
+          scanner_version: string
+          sha256: string
+          status: string
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          creation_id?: string
+          findings?: Json
+          id?: string
+          owner_id?: string
+          scanner_version?: string
+          sha256?: string
+          status?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creation_scans_creation_id_fkey"
+            columns: ["creation_id"]
+            isOneToOne: false
+            referencedRelation: "creations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creations: {
         Row: {
           created_at: string
           description: string | null
           external_url: string | null
+          file_bucket: string
           file_name: string | null
           file_path: string | null
           id: string
           kind: Database["public"]["Enums"]["creation_kind"]
           owner_id: string
+          scanned_sha256: string | null
+          security_status: string
+          security_summary: string
           title: string
           updated_at: string
           visibility: Database["public"]["Enums"]["visibility"]
@@ -88,11 +136,15 @@ export type Database = {
           created_at?: string
           description?: string | null
           external_url?: string | null
+          file_bucket?: string
           file_name?: string | null
           file_path?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["creation_kind"]
           owner_id: string
+          scanned_sha256?: string | null
+          security_status?: string
+          security_summary?: string
           title: string
           updated_at?: string
           visibility?: Database["public"]["Enums"]["visibility"]
@@ -101,11 +153,15 @@ export type Database = {
           created_at?: string
           description?: string | null
           external_url?: string | null
+          file_bucket?: string
           file_name?: string | null
           file_path?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["creation_kind"]
           owner_id?: string
+          scanned_sha256?: string | null
+          security_status?: string
+          security_summary?: string
           title?: string
           updated_at?: string
           visibility?: Database["public"]["Enums"]["visibility"]
