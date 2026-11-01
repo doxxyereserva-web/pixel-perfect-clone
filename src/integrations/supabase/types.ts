@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key_hash: string
+          last_used_at: string | null
+          name: string
+          prefix: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_hash: string
+          last_used_at?: string | null
+          name: string
+          prefix: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_hash?: string
+          last_used_at?: string | null
+          name?: string
+          prefix?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
           description: string
@@ -120,6 +158,138 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      project_connections: {
+        Row: {
+          auth_header: string | null
+          created_at: string
+          id: string
+          last_checked_at: string | null
+          last_status: string | null
+          last_tools: string[]
+          name: string
+          project_id: string
+          secret_encrypted: string | null
+          secret_hint: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          auth_header?: string | null
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_status?: string | null
+          last_tools?: string[]
+          name: string
+          project_id: string
+          secret_encrypted?: string | null
+          secret_hint?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          auth_header?: string | null
+          created_at?: string
+          id?: string
+          last_checked_at?: string | null
+          last_status?: string | null
+          last_tools?: string[]
+          name?: string
+          project_id?: string
+          secret_encrypted?: string | null
+          secret_hint?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          path: string
+          project_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          path: string
+          project_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          path?: string
+          project_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_notes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_skills: {
+        Row: {
+          content: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          project_id: string
+          target: Database["public"]["Enums"]["skill_target"]
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          project_id: string
+          target: Database["public"]["Enums"]["skill_target"]
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          project_id?: string
+          target?: Database["public"]["Enums"]["skill_target"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_skills_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
@@ -267,6 +437,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_ai_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key_encrypted: string
+          key_hint: string
+          provider: Database["public"]["Enums"]["ai_provider"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_encrypted: string
+          key_hint: string
+          provider: Database["public"]["Enums"]["ai_provider"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_encrypted?: string
+          key_hint?: string
+          provider?: Database["public"]["Enums"]["ai_provider"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ai_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           awarded_at: string
@@ -368,6 +573,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_project: {
+        Args: { _project: string; _user: string }
+        Returns: boolean
+      }
+      can_view_project: {
+        Args: { _project: string; _user: string }
+        Returns: boolean
+      }
       find_profile_by_username: {
         Args: { _username: string }
         Returns: {
@@ -393,7 +606,9 @@ export type Database = {
       }
     }
     Enums: {
+      ai_provider: "openai" | "anthropic" | "google" | "openrouter"
       creation_kind: "script" | "vfx" | "model" | "tool" | "resource"
+      skill_target: "claude_code" | "codex" | "gemini_cli"
       visibility: "public" | "private"
       workspace_role: "owner" | "admin" | "member" | "viewer"
     }
@@ -523,7 +738,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_provider: ["openai", "anthropic", "google", "openrouter"],
       creation_kind: ["script", "vfx", "model", "tool", "resource"],
+      skill_target: ["claude_code", "codex", "gemini_cli"],
       visibility: ["public", "private"],
       workspace_role: ["owner", "admin", "member", "viewer"],
     },

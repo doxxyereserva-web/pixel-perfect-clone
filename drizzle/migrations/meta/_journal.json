@@ -22,6 +22,13 @@
       "when": 1793565506179,
       "tag": "0002_agata_schema_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793571737499,
+      "tag": "0003_agata_tools",
+      "breakpoints": true
     }
   ]
 }
