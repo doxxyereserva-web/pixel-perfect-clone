@@ -18,6 +18,11 @@
 - [x] Skills: per target tool (Claude Code / Codex / Gemini CLI), downloadable; only usable with the matching model family.
 # Later
 - [ ] Let the project assistant call tools from connected external MCPs.
+# Rich asset library and secure uploads
+- [ ] Add concrete slash, intro, explosion and gunfire particle resources.
+- [ ] Add diverse licensed professional 3D assets and real Roblox import sources.
+- [ ] Quarantine and analyze profile model/script uploads; block unverified public downloads.
+- [ ] Verify downloads, uploads, security rules and desktop/mobile browsing.
 # Ready-made skills
 - [x] Research authoritative VFX, 3D, materials, animation and export references.
 - [x] Add original ready-to-use skills with real visual references, previews and per-tool downloads.
