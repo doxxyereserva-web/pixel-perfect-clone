@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,7 @@ import { providers, type AiProvider } from '@/lib/ai-models';
 import { createApiKey, saveAiKey } from '@/lib/tools.functions';
 import { loadObsidian, pingObsidian, saveObsidian } from '@/lib/obsidian';
 
-export const Route = createFileRoute('/_authenticated/dashboard/connections')({ component: Connections });
+export const Route = createFileRoute('/_authenticated/dashboard/connections')({ head: () => pageHead('Connections and API keys', 'Connect Ágata assistants, your AI accounts, API tools and Obsidian.'), component: Connections });
 
 function useOrigin() {
   const [o, setO] = useState('');

@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
@@ -13,7 +14,7 @@ import { EmptyState, PageHeader, Pill, errorMessage } from '@/components/agata/a
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 
-export const Route = createFileRoute('/_authenticated/dashboard/projects/')({ component: Projects });
+export const Route = createFileRoute('/_authenticated/dashboard/projects/')({ head: () => pageHead('My projects', 'Manage Ágata project guides, skills, notes and tools.'), component: Projects });
 
 export function useEditableWorkspaces(userId?: string) {
   return useQuery({

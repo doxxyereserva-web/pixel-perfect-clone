@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
@@ -22,7 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { useEditableWorkspaces } from './dashboard.projects.index';
 
-export const Route = createFileRoute('/_authenticated/dashboard/projects/$id')({ component: ProjectPage });
+export const Route = createFileRoute('/_authenticated/dashboard/projects/$id')({ head: () => pageHead('Project workspace', 'Manage this Ágata project and its guide, vault, ready-made skills and assistant.'), component: ProjectPage });
 
 type Form = { name: string; purpose: string; guide: string; mcp_url: string; skill_url: string; models: string[]; uses_lovable_api: boolean; visibility: 'public' | 'private'; workspace: string };
 

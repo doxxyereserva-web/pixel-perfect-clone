@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
@@ -16,7 +17,7 @@ import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/lib/auth';
 import { creationDownloadUrl, uploadCreationFile } from '@/lib/media';
 
-export const Route = createFileRoute('/_authenticated/dashboard/creations')({ component: Creations });
+export const Route = createFileRoute('/_authenticated/dashboard/creations')({ head: () => pageHead('My creations', 'Manage your scripts, VFX, models and tools on Ágata.'), component: Creations });
 
 type Creation = Database['public']['Tables']['creations']['Row'];
 

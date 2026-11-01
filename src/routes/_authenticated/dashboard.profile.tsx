@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
@@ -13,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth, useMyProfile } from '@/lib/auth';
 import { uploadProfileMedia } from '@/lib/media';
 
-export const Route = createFileRoute('/_authenticated/dashboard/profile')({ component: ProfileSettings });
+export const Route = createFileRoute('/_authenticated/dashboard/profile')({ head: () => pageHead('Profile settings', 'Manage your Ágata profile, public presence and creations.'), component: ProfileSettings });
 
 function ProfileSettings() {
   const { user } = useAuth();
