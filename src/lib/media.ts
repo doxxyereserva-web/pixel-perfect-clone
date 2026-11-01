@@ -29,16 +29,21 @@ export async function uploadProfileMedia(userId: string, file: File, kind: 'avat
 }
 
 export async function uploadCreationFile(userId: string, file: File) {
+  if (!file.size) throw new Error('Choose a non-empty file.');
   if (file.size > 50 * 1024 * 1024) throw new Error('Files must be 50 MB or smaller.');
   const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `${userId}/${Date.now()}-${safe}`;
-  const { error } = await supabase.storage.from('creations').upload(path, file, { contentType: file.type || 'application/octet-stream' });
+  const path = `${userId}/${crypto.randomUUID()}-${safe}`;
+  const { error } = await supabase.storage.from('creation-quarantine').upload(path, file, { upsert: false, contentType: 'application/octet-stream' });
   if (error) throw error;
-  return { path, name: file.name };
+  return { path, name: file.name, bucket: 'creation-quarantine' };
 }
 
-export async function creationDownloadUrl(path: string) {
-  const { data, error } = await supabase.storage.from('creations').createSignedUrl(path, 10 * 60, { download: true });
+export async function creationDownloadUrl(creationId: string) {
+  const { data: creation, error: readError } = await supabase.from('creations').select('file_path, file_bucket, security_status, owner_id').eq('id', creationId).maybeSingle();
+  if (readError || !creation?.file_path) throw new Error('Download not available.');
+  const { data: auth } = await supabase.auth.getUser();
+  if (creation.security_status !== 'checked' && auth.user?.id !== creation.owner_id) throw new Error('This upload has not passed inspection.');
+  const { data, error } = await supabase.storage.from(creation.file_bucket).createSignedUrl(creation.file_path, 60, { download: true });
   if (error) throw error;
   return data.signedUrl;
 }
