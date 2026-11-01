@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, type FormEvent } from 'react';
@@ -12,7 +13,7 @@ import { Avatar, EmptyState, Pill, errorMessage, roleLabels, type WorkspaceRole 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 
-export const Route = createFileRoute('/_authenticated/dashboard/workspaces/$id')({ component: WorkspacePage });
+export const Route = createFileRoute('/_authenticated/dashboard/workspaces/$id')({ head: () => pageHead('Workspace team', 'Manage this Ágata workspace, its members, teams and projects.'), component: WorkspacePage });
 
 const assignable: WorkspaceRole[] = ['admin', 'member', 'viewer'];
 

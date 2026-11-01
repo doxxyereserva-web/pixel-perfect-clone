@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
@@ -12,7 +13,7 @@ import { EmptyState, PageHeader, Pill, errorMessage, roleLabels } from '@/compon
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 
-export const Route = createFileRoute('/_authenticated/dashboard/workspaces/')({ component: Workspaces });
+export const Route = createFileRoute('/_authenticated/dashboard/workspaces/')({ head: () => pageHead('My workspaces', 'Manage Ágata studios, teams and shared projects.'), component: Workspaces });
 
 function Workspaces() {
   const { user } = useAuth();

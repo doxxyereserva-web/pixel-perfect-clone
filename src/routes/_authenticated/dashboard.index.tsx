@@ -1,3 +1,4 @@
+import { pageHead } from '@/lib/page-head';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight } from 'lucide-react';
@@ -6,7 +7,7 @@ import { Mascot } from '@/components/agata/Logo';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth, useMyProfile } from '@/lib/auth';
 
-export const Route = createFileRoute('/_authenticated/dashboard/')({ component: Overview });
+export const Route = createFileRoute('/_authenticated/dashboard/')({ head: () => pageHead('My space', 'Your Ágata creations, workspaces and projects in one place.'), component: Overview });
 
 function useCount(table: 'creations' | 'projects' | 'workspace_members', column: string, userId?: string) {
   return useQuery({
