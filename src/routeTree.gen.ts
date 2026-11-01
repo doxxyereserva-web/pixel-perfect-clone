@@ -16,6 +16,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WorkspacesRouteImport } from './routes/workspaces'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -64,6 +65,11 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/skills': typeof SkillsRoute
   '/terms': typeof TermsRoute
   '/workspaces': typeof WorkspacesRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/skills': typeof SkillsRoute
   '/terms': typeof TermsRoute
   '/workspaces': typeof WorkspacesRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/skills': typeof SkillsRoute
   '/terms': typeof TermsRoute
   '/workspaces': typeof WorkspacesRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/projects'
     | '/reset-password'
+    | '/skills'
     | '/terms'
     | '/workspaces'
     | '/.well-known/oauth-protected-resource'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/projects'
     | '/reset-password'
+    | '/skills'
     | '/terms'
     | '/workspaces'
     | '/.well-known/oauth-protected-resource'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/projects'
     | '/reset-password'
+    | '/skills'
     | '/terms'
     | '/workspaces'
     | '/.well-known/oauth-protected-resource'
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ProjectsRoute: typeof ProjectsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SkillsRoute: typeof SkillsRoute
   TermsRoute: typeof TermsRoute
   WorkspacesRoute: typeof WorkspacesRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ProjectsRoute: ProjectsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SkillsRoute: SkillsRoute,
   TermsRoute: TermsRoute,
   WorkspacesRoute: WorkspacesRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
