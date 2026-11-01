@@ -309,3 +309,5 @@ button.companion-bubble { overflow: visible; }
 @media (max-width: 1023px) { .cta-mascot { display: none; } }
 
 .profile-banner { background: radial-gradient(120% 140% at 0% 0%, color-mix(in oklch, var(--mineral) 35%, transparent), transparent 60%), linear-gradient(135deg, var(--secondary), var(--collection-surface)); }
+:root { --particle-preview-surface: oklch(0.16 0.01 295); }
+@theme inline { --color-particle-preview: var(--particle-preview-surface); }

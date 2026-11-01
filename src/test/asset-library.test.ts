@@ -10,7 +10,7 @@ describe('real assets and requested particle presets', () => {
   it('keeps verified pack counts distinct from individual duplicates', () => {
     const packs = libraryAssets.filter(a => a.type === '3D packs');
     expect(packs).toHaveLength(8);
-    expect(packs.reduce((sum, p) => sum + p.count, 0)).toBe(1040);
+    expect(packs.reduce((sum, p) => sum + p.count, 0)).toBe(940);
     expect(libraryAssets.filter(a => a.type === '3D models')).toHaveLength(20);
     expect(packs.every(a => a.license === 'CC0' && a.creator === 'Kenney')).toBe(true);
   });

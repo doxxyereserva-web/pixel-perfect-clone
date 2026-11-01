@@ -35,7 +35,7 @@ function ParticlePreview({ preset, image }: { preset: VfxPreset; image: string }
     if (sprite.complete && sprite.naturalWidth) { start = performance.now(); frame = requestAnimationFrame(draw); }
     return () => { cancelAnimationFrame(frame); sprite.onload = null; };
   }, [preset, image, run]);
-  return <div><canvas ref={canvas} width={640} height={340} aria-label={`${preset.title} illustrative particle preview`} className="aspect-[32/17] w-full rounded-lg bg-foreground" /><div className="mt-2 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Illustrative 2D preview · not a Roblox render</p><Button size="icon" variant="ghost" title="Replay preview" aria-label="Replay preview" onClick={() => setRun(v => v + 1)}><Play /></Button></div></div>;
+  return <div><canvas ref={canvas} width={640} height={340} aria-label={`${preset.title} illustrative particle preview`} className="aspect-[32/17] w-full rounded-lg bg-particle-preview" /><div className="mt-2 flex items-center justify-between gap-3"><p className="text-xs text-muted-foreground">Illustrative 2D preview · not a Roblox render</p><Button size="icon" variant="ghost" title="Replay preview" aria-label="Replay preview" onClick={() => setRun(v => v + 1)}><Play /></Button></div></div>;
 }
 
 export function AssetLibrary() {
