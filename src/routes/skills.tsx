@@ -17,5 +17,5 @@ export const Route = createFileRoute('/skills')({
 });
 
 function Skills() {
-  return <main><section className="section-shell pb-8 pt-36 sm:pt-44"><Eyebrow>Ágata / Creative tools</Eyebrow><div className="mt-5 flex flex-wrap items-end justify-between gap-5"><div><h1 className="text-4xl font-normal sm:text-6xl">Skills library</h1><p className="mt-4 text-sm text-muted-foreground">VFX · 3D modeling · Materials · Animation · Optimization</p></div><Button asChild variant="glass"><Link to="/dashboard/projects">My projects<ArrowUpRight /></Link></Button></div></section><section className="section-shell"><SkillLibrary /></section><Footer /></main>;
+  return <main><section className="section-shell pb-8 pt-36 sm:pt-44"><Eyebrow>Ágata / Creative tools</Eyebrow><div className="mt-5 flex flex-wrap items-end justify-between gap-5"><div><h1 className="text-4xl font-normal sm:text-6xl">Skills library</h1><p className="mt-4 text-sm text-muted-foreground">VFX · 3D modeling · Materials · Animation · Optimization</p></div><div className="flex flex-wrap gap-2"><Button asChild variant="glass"><Link to="/library">Particle & model assets<ArrowUpRight /></Link></Button><Button asChild variant="glass"><Link to="/dashboard/projects">My projects<ArrowUpRight /></Link></Button></div></div></section><section className="section-shell"><SkillLibrary /></section><Footer /></main>;
 }

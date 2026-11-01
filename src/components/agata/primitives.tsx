@@ -34,6 +34,7 @@ export function Footer() {
         <li><Link to="/projects" className={footerLink}>Projects</Link></li>
         <li><Link to="/workspaces" className={footerLink}>Workspaces</Link></li>
         <li><Link to="/skills" className={footerLink}>Skills library</Link></li>
+        <li><Link to="/library" className={footerLink}>Asset library</Link></li>
       </ul></nav>
       <nav aria-label="Account"><p className="text-xs font-medium uppercase tracking-[0.18em] text-foreground">Account</p><ul className="mt-4 space-y-3">
         <li><Link to="/auth" className={footerLink}>Sign in</Link></li>
