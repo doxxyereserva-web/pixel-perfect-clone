@@ -86,6 +86,45 @@ async function projectContext(supabase: Parameters<typeof import('./ai.server').
   return `Project: ${p.name}\nPurpose: ${p.purpose ?? '(not written yet)'}\nModels: ${p.models.join(', ') || '(none listed)'}\nNotes in vault: ${(notes ?? []).map(n => n.path).join(', ') || '(none)'}\n\nGuide:\n${(p.guide ?? '(not written yet)').slice(0, 12000)}`;
 }
 
+/** Builds AI SDK tools from the project's external MCP connections (fails soft per connection). */
+async function externalMcpTools(supabase: Parameters<typeof import('./ai.server').runModel>[0]['supabase'], projectId: string) {
+  const { data: conns } = await supabase
+    .from('project_connections')
+    .select('id, name, url, auth_header, secret_encrypted')
+    .eq('project_id', projectId)
+    .limit(10);
+  if (!conns?.length) return { tools: {} as Record<string, unknown>, available: [] as string[] };
+
+  const { decryptSecret } = await import('./crypto.server');
+  const { listMcpTools, callMcpTool } = await import('./mcp-client.server');
+  const { dynamicTool, jsonSchema } = await import('ai');
+
+  const tools: Record<string, unknown> = {};
+  const available: string[] = [];
+  await Promise.all(conns.map(async (c, ci) => {
+    try {
+      const auth = c.auth_header && c.secret_encrypted ? { header: c.auth_header, value: await decryptSecret(c.secret_encrypted) } : undefined;
+      const { tools: defs } = await listMcpTools(c.url, auth);
+      available.push(c.name);
+      for (const def of defs.slice(0, 25)) {
+        const key = `${c.name.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 24) || `conn${ci}`}__${def.name.replace(/[^a-zA-Z0-9_-]/g, '_')}`.slice(0, 64);
+        tools[key] = dynamicTool({
+          description: `[${c.name}] ${def.description || def.name}`,
+          inputSchema: jsonSchema(def.inputSchema as never),
+          execute: async (args) => {
+            try {
+              return await callMcpTool(c.url, auth, def.name, (args ?? {}) as Record<string, unknown>);
+            } catch (e) {
+              return `Tool call failed: ${e instanceof Error ? e.message : 'unknown error'}`.slice(0, 300);
+            }
+          },
+        });
+      }
+    } catch { /* unreachable connection: skip its tools */ }
+  }));
+  return { tools, available };
+}
+
 export const projectChat = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => z.object({
@@ -93,7 +132,7 @@ export const projectChat = createServerFn({ method: 'POST' })
     messages: z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string().min(1).max(20000) })).min(1).max(40),
   }).parse(i))
   .handler(async ({ data, context }) => {
-    const { runModel } = await import('./ai.server');
+    const { runModel, runModelWithTools } = await import('./ai.server');
     let system = `You are Ágata's project assistant for Roblox Studio creators. Be concise and practical. Answer in the user's language.\n\n${await projectContext(context.supabase, data.projectId)}`;
     if (data.skillId) {
       const { data: s } = await context.supabase.from('project_skills').select('name, target, content, project_id').eq('id', data.skillId).maybeSingle();
@@ -101,8 +140,14 @@ export const projectChat = createServerFn({ method: 'POST' })
       if (!canUseSkill(s.target, data.choice as ModelChoice)) throw new Error(`The “${s.name}” skill is built for ${targetLabel(s.target)} and only works with its model family.`);
       system += `\n\nActive skill “${s.name}”:\n${s.content.slice(0, 30000)}`;
     }
+    const { tools, available } = await externalMcpTools(context.supabase, data.projectId);
+    if (available.length) {
+      system += `\n\nYou can call tools from these connected MCP servers: ${available.join(', ')}. Use them when they help answer; call at most a few per reply.`;
+      const r = await runModelWithTools({ supabase: context.supabase, userId: context.userId, choice: data.choice as ModelChoice, system, messages: data.messages, tools: tools as never });
+      return { text: r.text, toolCalls: r.toolCalls };
+    }
     const text = await runModel({ supabase: context.supabase, userId: context.userId, choice: data.choice as ModelChoice, system, messages: data.messages });
-    return { text };
+    return { text, toolCalls: [] };
   });
 
 export const generateAsset = createServerFn({ method: 'POST' })
