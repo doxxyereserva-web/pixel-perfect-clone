@@ -31,7 +31,7 @@ describe('mcp-client.server', () => {
     expect(r.server).toBe('test-server');
     expect(r.tools).toHaveLength(2);
     expect(r.tools[0]).toMatchObject({ name: 'search', description: 'Search docs' });
-    expect(r.tools[1].inputSchema).toEqual({ type: 'object', properties: {} });
+    expect(r.tools[1]?.inputSchema).toEqual({ type: 'object', properties: {} });
   });
 
   it('calls a tool and returns its text content', async () => {
