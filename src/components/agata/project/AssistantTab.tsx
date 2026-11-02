@@ -12,7 +12,7 @@ import { projectChat } from '@/lib/tools.functions';
 import { ModelPicker } from './ModelPicker';
 import { useSkills } from './SkillsTab';
 
-type Turn = { role: 'user' | 'assistant'; content: string };
+type Turn = { role: 'user' | 'assistant'; content: string; toolCalls?: { connection: string; tool: string; ok: boolean }[] };
 
 export function AssistantTab({ projectId }: { projectId: string }) {
   const chat = useServerFn(projectChat);
@@ -36,7 +36,7 @@ export function AssistantTab({ projectId }: { projectId: string }) {
     setTurns(next); setInput(''); setBusy(true);
     try {
       const r = await chat({ data: { projectId, choice, skillId: skill ? skill.id : null, messages: next.slice(-40) } });
-      setTurns([...next, { role: 'assistant', content: r.text }]);
+      setTurns([...next, { role: 'assistant', content: r.text, toolCalls: r.toolCalls }]);
     } catch (e) { toast.error(errorMessage(e)); setTurns(turns); setInput(text); }
     setBusy(false);
   }
@@ -56,7 +56,13 @@ export function AssistantTab({ projectId }: { projectId: string }) {
     <div className="mt-6 grid min-h-[320px] content-start gap-4 rounded-lg border bg-card/50 p-4 sm:p-6">
       {!turns.length && <div className="flex flex-col items-center py-10 text-center"><Mascot mood="curious" className="size-14" />
         <p className="mt-3 text-sm text-muted-foreground">Ask about this project. The assistant knows its purpose, guide and vault.</p></div>}
-      {turns.map((t, i) => <div key={i} className={t.role === 'user' ? 'ms-auto max-w-[85%] rounded-2xl bg-secondary px-4 py-2.5 text-sm' : 'max-w-[95%] whitespace-pre-wrap text-sm leading-relaxed'} translate="no">{t.content}</div>)}
+      {turns.map((t, i) => <div key={i} className={t.role === 'user' ? 'ms-auto max-w-[85%] rounded-2xl bg-secondary px-4 py-2.5 text-sm' : 'max-w-[95%] whitespace-pre-wrap text-sm leading-relaxed'} translate="no">
+        {!!t.toolCalls?.length && <div className="mb-2 flex flex-wrap gap-1.5" translate="no">{t.toolCalls.map((c, j) =>
+          <span key={j} className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${c.ok ? 'text-muted-foreground' : 'border-destructive/40 text-destructive'}`}>
+            {c.connection} · {c.tool}{c.ok ? '' : ' (failed)'}
+          </span>)}</div>}
+        {t.content}
+      </div>)}
       {busy && <p className="text-sm text-muted-foreground">Thinking…</p>}
       <div ref={end} />
     </div>

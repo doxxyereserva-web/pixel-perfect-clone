@@ -1,10 +1,13 @@
-/** Minimal MCP Streamable HTTP client: initialize + tools/list, used to test external connections. */
+/** Minimal MCP Streamable HTTP client: initialize, tools/list and tools/call against external servers. */
 
 function blockedHost(url: URL) {
   const h = url.hostname.toLowerCase();
   return h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.internal') || h.endsWith('.local')
     || /^(127|10|0)\./.test(h) || /^192\.168\./.test(h) || /^169\.254\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h) || h.startsWith('[');
 }
+
+export type McpAuth = { header: string; value: string };
+export type McpToolDef = { name: string; description: string; inputSchema: Record<string, unknown> };
 
 async function readRpc(res: Response, id: number): Promise<{ result?: unknown; error?: { message?: string } }> {
   const type = res.headers.get('content-type') ?? '';
@@ -19,7 +22,8 @@ async function readRpc(res: Response, id: number): Promise<{ result?: unknown; e
   return JSON.parse(text);
 }
 
-export async function probeMcp(rawUrl: string, auth?: { header: string; value: string }) {
+/** Opens an MCP session: validates the URL, initializes and returns the POST helper with session headers. */
+async function openSession(rawUrl: string, auth?: McpAuth) {
   const url = new URL(rawUrl);
   if (url.protocol !== 'https:' || blockedHost(url)) throw new Error('Use a public https:// address.');
   const base: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' };
@@ -40,10 +44,51 @@ export async function probeMcp(rawUrl: string, auth?: { header: string; value: s
   const session = init.headers.get('mcp-session-id');
   if (session) headers['Mcp-Session-Id'] = session;
   await fetch(url, { method: 'POST', headers, signal, body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) }).then(r => r.body?.cancel()).catch(() => {});
-  const list = await fetch(url, { method: 'POST', headers, signal, body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }) });
-  if (!list.ok) throw new Error(`tools/list answered ${list.status}.`);
-  const listMsg = await readRpc(list, 2);
-  if (listMsg.error) throw new Error(listMsg.error.message ?? 'tools/list failed.');
-  const tools = ((listMsg.result as { tools?: { name?: string }[] } | undefined)?.tools ?? []).map(t => String(t.name ?? '')).filter(Boolean).slice(0, 100);
+
+  const rpc = async (id: number, method: string, params: unknown) => {
+    const res = await fetch(url, { method: 'POST', headers, signal, body: JSON.stringify({ jsonrpc: '2.0', id, method, params }) });
+    if (!res.ok) throw new Error(`${method} answered ${res.status}.`);
+    const msg = await readRpc(res, id);
+    if (msg.error) throw new Error(msg.error.message ?? `${method} failed.`);
+    return msg.result;
+  };
+  return { server, rpc };
+}
+
+/** Lists a server's tools with descriptions and input schemas. */
+export async function listMcpTools(rawUrl: string, auth?: McpAuth): Promise<{ server: string; tools: McpToolDef[] }> {
+  const { server, rpc } = await openSession(rawUrl, auth);
+  const result = await rpc(2, 'tools/list', {}) as { tools?: { name?: string; description?: string; inputSchema?: Record<string, unknown> }[] } | undefined;
+  const tools = (result?.tools ?? [])
+    .filter(t => typeof t.name === 'string' && t.name)
+    .slice(0, 100)
+    .map(t => ({
+      name: String(t.name),
+      description: String(t.description ?? '').slice(0, 500),
+      inputSchema: t.inputSchema && typeof t.inputSchema === 'object' ? t.inputSchema : { type: 'object', properties: {} },
+    }));
   return { server, tools };
+}
+
+/** Calls one tool on an external MCP server and returns its text content (bounded). */
+export async function callMcpTool(rawUrl: string, auth: McpAuth | undefined, name: string, args: Record<string, unknown>): Promise<string> {
+  const { rpc } = await openSession(rawUrl, auth);
+  const result = await rpc(2, 'tools/call', { name, arguments: args }) as {
+    isError?: boolean;
+    content?: { type?: string; text?: string }[];
+    structuredContent?: unknown;
+  } | undefined;
+  const text = (result?.content ?? [])
+    .filter(c => c.type === 'text' && typeof c.text === 'string')
+    .map(c => c.text as string)
+    .join('\n')
+    || (result?.structuredContent !== undefined ? JSON.stringify(result.structuredContent) : '(no content)');
+  const bounded = text.slice(0, 20_000);
+  if (result?.isError) throw new Error(bounded.slice(0, 300) || 'The tool reported an error.');
+  return bounded;
+}
+
+export async function probeMcp(rawUrl: string, auth?: McpAuth) {
+  const { server, tools } = await listMcpTools(rawUrl, auth);
+  return { server, tools: tools.map(t => t.name) };
 }
